@@ -1,0 +1,106 @@
+Apex Class:
+
+public class Default_Contact {
+    public static boolean newContact(List<Account> accList){
+      Account a=new Account();
+       List<Contact> conList = new List<Contact>();
+		for(Account acc : accList) {
+          
+			  Contact con = new Contact(AccountId = acc.Id);
+			  List<String> nameStr = acc.Name.split(' ');
+			  if(nameStr.size()>0)
+				 con.LastName = nameStr[0];
+			  if(nameStr.size()>1)
+				  con.FirstName = nameStr[1];
+             
+     
+		}
+       
+		
+          return a.Only_Default_Contact__c;
+	}
+	public static void updateCheckboxOnAccount(List<Contact> contactList){
+		Set<Id> accountIds = new Set<Id>();
+		for(Contact con : contactList) {
+			 accountIds.add(con.AccountId);
+		}
+		
+		List<Account> updatedAccounts = new List<Account>();
+		for(AggregateResult ar : [select count(id) , AccountId from Contact where AccountId IN :accountIds group by AccountId having count(id)  >1 ]){
+			updatedAccounts.add(new Account(Id = (Id)ar.get('AccountId'), Only_Default_Contact__c=false));    
+		}
+		
+		if(!updatedAccounts.isEmpty())
+			update updatedAccounts;
+           
+	}
+
+       
+   }
+   
+   
+   
+   
+   
+   Trigger class:
+   
+   
+   trigger AccountTrigger on Account (after insert) {
+    if(trigger.isafter && trigger.isinsert) {
+       Account acc = [select id,Only_Default_Contact__c from account where id in : trigger.new];
+  contact con = new contact();
+ con.firstName = 'Info';
+ 			 con.LastName = 'Default';
+  			con.email = 'info@websitedomain.tld';
+  con.accountId = acc.id;
+         acc.Only_Default_Contact__c = true;
+   update acc;
+
+
+  insert con;
+		
+    }
+}
+
+trigger ContactTrigger on Contact (after insert) {
+    if(trigger.isafter && trigger.isinsert) {
+		Default_Contact.updateCheckboxOnAccount(Trigger.new);
+    }
+}
+
+
+
+
+
+
+
+
+
+TestClass:
+
+@isTest
+public class DefaultConTest {
+    @isTest static void default()
+    {
+        Account a=new Account();
+        a.name='akila';
+        insert a;
+        List<Account>al=new List<Account>();
+        al.add(a);
+        Contact c=new Contact();
+       c.AccountId=a.Id;
+        c.FirstName='Info';
+       c.LastName='Default';
+     
+       insert c;
+       Boolean b=Default_contact.newContact(al);
+        System.assertEquals(a.Only_Default_Contact__c=false, b);
+        
+			 
+        
+        
+        
+    }
+    
+
+}
