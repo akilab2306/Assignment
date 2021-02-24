@@ -1,0 +1,39 @@
+public class Account_Manager {
+public static boolean check(){
+    Account ac=new Account();
+   List<Account> l1 = new List<Account>();
+   List<opportunity> op = new List<opportunity>();
+    Set<Id> Ids = new Set<Id>();
+   
+      Map<Id, Opportunity> Opp = new Map<Id,Opportunity>();
+   
+  
+    for(opportunity o: [select AccountId from Opportunity]){
+        Ids.add(o.AccountId);
+    }
+       
+    for (Opportunity o : [select AccountId,amount from Opportunity ]) {
+    Opp.put(o.AccountId, o);
+    }
+   
+    for (Account a: [SELECT Id, is_goldenAccount__c FROM Account WHERE Id IN :Ids]){
+          If(Opp.get(a.Id).Amount>50000){
+           a.is_goldenAccount__c = true;
+            l1.add(a);
+    }
+            else{
+            a.is_goldenAccount__c = FALSE;
+        l1.add(a);
+        }
+}
+    if(l1.size() > 0){
+        upsert l1;
+    }
+    
+
+   return ac.is_goldenAccount__c;   
+
+
+}
+  
+} 
