@@ -1,3 +1,6 @@
+Apex Class:
+
+
 public class Account_Manager {
 public static boolean check(){
     Account ac=new Account();
@@ -36,4 +39,58 @@ public static boolean check(){
 
 }
   
-} 
+}
+
+
+
+
+Apex trigger:
+
+
+
+trigger Account_ManagerT on Opportunity(before insert,before update) {
+      if(Trigger.isInsert || Trigger.isUpdate && Trigger.isBefore){
+          for(Opportunity o :Trigger.New)
+          {
+           
+  			Account_Manager.check();
+        }    
+      }
+}
+
+
+
+
+
+
+Apex Test:
+
+
+
+@isTest
+public class Account_ManagerTest {
+   @isTest static void checked()
+    {
+         Account a=new Account();
+        a.name='akila';
+        insert a;
+        
+        opportunity op=new opportunity();
+         op.AccountId=a.id;
+        op.Name='standisis';
+         op.StageName='Need Analysis';
+         op.CloseDate=Date.valueOf('2021-03-31');
+       
+        op.Amount=70000;
+       
+      	 insert op;
+       boolean b= Account_Manager.check();
+       System.assertEquals(a.is_goldenAccount__c=false, b);
+        
+ 
+        
+    }
+   
+    
+
+}
