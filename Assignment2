@@ -1,0 +1,88 @@
+Apex class:
+
+public class Check_Contact {
+    public static String updateContact()
+    {
+        Contact c=new Contact();
+         Set<Id> Id_Set = new Set<Id>();
+       List<Contact> values= new list<contact>();
+        for(Account ac : [select id,website from Account])
+        {
+            if(ac.website != null)
+            {
+                Id_Set.add(ac.Id);
+            }
+        
+        }
+        if(Id_Set.size()>0)
+        {
+            values = [select Id,Firstname,Lastname,Profile__c,Accountid,Account.website from contact where Accountid in :Id_Set];
+            for(Contact con :values)
+            {
+                if(con.FirstName != Null)
+                {
+                    con.Profile__c = con.account.website + '/' + con.FirstName.substring(0, 1) + con.lastname;
+                   
+                }
+            }
+            update values;
+        }
+          return c.Profile__c;
+    }
+  
+
+}
+
+Trigger:
+
+
+trigger Check_Contact on Account (After Update) {
+     if(Trigger.isAfter && Trigger.isUpdate)
+    {
+       for(Account ac: Trigger.New)
+       {
+            Check_Contact.updateContact();
+       }
+}
+}
+
+
+
+
+
+Test Class:
+
+@isTest
+public class CheckconTest {
+   @isTest static void updated()
+    {
+     
+        Account ac=new Account();
+         ac.name='akil';
+         ac.Website='www.akil.com';
+        insert ac;
+        Contact c= new Contact();
+        c.AccountId=ac.Id;
+        c.FirstName='acc';
+        c.LastName='default';
+        insert c;
+         Contact cc= new Contact();
+         cc.AccountId=ac.Id;
+        cc.FirstName='';
+        cc.LastName='default';
+        insert cc;
+        String s= Check_Contact.updateContact();
+   System.assertEquals(c.Profile__c, s);
+        
+
+    }
+
+}
+
+
+
+
+
+
+
+
