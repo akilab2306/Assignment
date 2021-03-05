@@ -1,0 +1,26 @@
+.slds-p-horizontal_x-large{
+    padding-left:1px;
+}
+.slds-modal{
+    padding-bottom:40px ;
+    padding-right: 150px;
+}
+
+.slds-modal__content{
+    padding-top:0px;
+}
+ 
+
+     .slds-file-selector__dropzone .slds-file-selector__text{
+        display: none;
+    }
+    .THIS .slds-file-selector__dropzone .slds-file-selector__button{
+        font-size: 0;
+    }
+    .THIS .slds-file-selector__dropzone .slds-file-selector__button:after{
+        content:'Select files';
+        
+        font-size: .8125rem;
+        color:rgb(0, 89, 255);
+        font-weight:bold;
+    }
